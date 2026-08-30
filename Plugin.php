@@ -55,32 +55,42 @@ class Plugin extends Base
         );
 
         // ── Generator routes ──────────────────────────────────────────────────
+        // addRoute() takes the plugin name as a separate 4th argument; the
+        // controller argument must be the bare controller name. The colon
+        // 'Plugin:Controller' form is only valid for template/hook strings —
+        // core Router::sanitize() rejects a colon in the controller (it fails
+        // /^[a-zA-Z_0-9]+$/), which would silently route to DashboardController.
         $this->route->addRoute(
             'subtask-generator/show',
-            'SubtaskGenerator:GeneratorController',
-            'show'
+            'GeneratorController',
+            'show',
+            'SubtaskGenerator'
         );
         $this->route->addRoute(
             'subtask-generator/generate',
-            'SubtaskGenerator:GeneratorController',
-            'generate'
+            'GeneratorController',
+            'generate',
+            'SubtaskGenerator'
         );
         $this->route->addRoute(
             'subtask-generator/create',
-            'SubtaskGenerator:GeneratorController',
-            'create'
+            'GeneratorController',
+            'create',
+            'SubtaskGenerator'
         );
 
         // ── Admin settings routes ─────────────────────────────────────────────
         $this->route->addRoute(
             'subtask-generator/settings',
-            'SubtaskGenerator:SettingsController',
-            'show'
+            'SettingsController',
+            'show',
+            'SubtaskGenerator'
         );
         $this->route->addRoute(
             'subtask-generator/save',
-            'SubtaskGenerator:SettingsController',
-            'save'
+            'SettingsController',
+            'save',
+            'SubtaskGenerator'
         );
     }
 
@@ -124,7 +134,7 @@ class Plugin extends Base
 
     public function getPluginVersion(): string
     {
-        return '1.1.0';
+        return '1.1.1';
     }
 
     public function getPluginHomepage(): string

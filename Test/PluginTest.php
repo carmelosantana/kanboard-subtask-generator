@@ -18,7 +18,7 @@ class PluginTest extends Base
         $plugin = new Plugin($this->container);
 
         $this->assertSame('SubtaskGenerator', $plugin->getPluginName());
-        $this->assertSame('1.1.0', $plugin->getPluginVersion());
+        $this->assertSame('1.1.1', $plugin->getPluginVersion());
         $this->assertNotEmpty($plugin->getPluginDescription());
         $this->assertNotEmpty($plugin->getPluginAuthor());
         $this->assertNotEmpty($plugin->getPluginHomepage());
@@ -104,6 +104,68 @@ class PluginTest extends Base
         $this->assertTrue(
             $plugin->isAiEnabled(),
             'isAiEnabled() must return true on PHP 8.4 when AiConnector is present and a provider profile is configured'
+        );
+    }
+
+    // ── Route registration ────────────────────────────────────────────────────
+    //
+    // Regression guard for a route-registration bug: addRoute()'s controller
+    // argument must be the bare controller name with the plugin passed as the
+    // 4th argument — addRoute($path, $controller, $action, $plugin) — NOT the
+    // colon 'Plugin:Controller' form. Core Router::sanitize() rejects a colon
+    // (it fails /^[a-zA-Z_0-9]+$/), so the colon form makes every pretty URL
+    // fall back to DashboardController. The colon form is only valid for
+    // template/hook strings, never for addRoute()'s controller arg.
+
+    public function testRoutesDispatchToPluginControllers(): void
+    {
+        $route = $this->container['route'];
+        $route->enable(); // addRoute() is a no-op unless the routing table is activated
+
+        (new Plugin($this->container))->initialize();
+
+        $expected = [
+            'subtask-generator/show'     => ['GeneratorController', 'show'],
+            'subtask-generator/generate' => ['GeneratorController', 'generate'],
+            'subtask-generator/create'   => ['GeneratorController', 'create'],
+            'subtask-generator/settings' => ['SettingsController', 'show'],
+            'subtask-generator/save'     => ['SettingsController', 'save'],
+        ];
+
+        foreach ($expected as $path => list($controller, $action)) {
+            $r = $route->findRoute($path);
+
+            $this->assertStringNotContainsString(
+                ':',
+                $r['controller'],
+                "Route '$path' controller must survive Router::sanitize() (no colon) — use the 4-arg addRoute() form"
+            );
+            $this->assertSame($controller, $r['controller'], "Route '$path' must dispatch to $controller");
+            $this->assertSame($action, $r['action'], "Route '$path' must invoke action '$action'");
+            $this->assertSame(
+                'SubtaskGenerator',
+                $r['plugin'],
+                "Route '$path' must carry the plugin name as addRoute()'s 4th argument"
+            );
+        }
+    }
+
+    public function testRoutesGeneratePrettyUrls(): void
+    {
+        $route = $this->container['route'];
+        $route->enable();
+
+        (new Plugin($this->container))->initialize();
+
+        // Reverse lookup: the URL helper resolves (controller, action, plugin)
+        // to the pretty path only when the route is registered correctly.
+        $this->assertSame(
+            'subtask-generator/show',
+            $route->findUrl('GeneratorController', 'show', array(), 'SubtaskGenerator')
+        );
+        $this->assertSame(
+            'subtask-generator/settings',
+            $route->findUrl('SettingsController', 'show', array(), 'SubtaskGenerator')
         );
     }
 }

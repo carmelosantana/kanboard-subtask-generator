@@ -2,6 +2,21 @@
 
 All notable changes to SubtaskGenerator will be documented here.
 
+## [1.1.1] — 2026-08-29
+
+### Fixed
+
+- **Pretty-URL routes fell back to the Dashboard.** The `addRoute()` calls used
+  the colon `'SubtaskGenerator:GeneratorController'` form with no separate plugin
+  argument. Core `Router::sanitize()` rejects a colon in the controller name
+  (it fails `/^[a-zA-Z_0-9]+$/`), so hitting `subtask-generator/show`,
+  `/generate`, `/create`, `/settings`, or `/save` directly routed to
+  `DashboardController` instead of the plugin. Switched all five routes to the
+  4-arg form `addRoute($path, $controller, $action, 'SubtaskGenerator')`. The
+  colon form is only valid for template/hook strings, never for `addRoute()`'s
+  controller argument. (The in-app modal/settings links were unaffected — they
+  degraded to the query-string URL form, which dispatches correctly.)
+
 ## [1.1.0] — 2026-07-10
 
 ### Changed (breaking)
