@@ -2,6 +2,12 @@
 
 All notable changes to SubtaskGenerator will be documented here.
 
+## [1.1.2] — unreleased
+
+### Changed
+
+- `requires` AiConnector 1.1.4 or later (was 1.0.0).
+
 ## [1.1.1] — 2026-08-29
 
 ### Fixed

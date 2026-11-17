@@ -9,7 +9,7 @@ OpenAI, OpenAI Responses, Grok, Gemini, Mistral, or Ollama).
 
 - Kanboard >= 1.2.47
 - PHP >= 8.4
-- **[AiConnector](../AiConnector/README.md) >= 1.0.0**, installed and active,
+- **[AiConnector](../AiConnector/README.md) >= 1.1.4**, installed and active,
   with at least one provider profile configured and ready. This is declared as a
   hard `requires` in `plugin.json`. Kanboard core does not itself parse
   `requires`, so it will not block activation; the dependency is *enforced* by the
