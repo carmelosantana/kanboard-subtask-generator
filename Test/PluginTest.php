@@ -18,11 +18,19 @@ class PluginTest extends Base
         $plugin = new Plugin($this->container);
 
         $this->assertSame('SubtaskGenerator', $plugin->getPluginName());
-        $this->assertSame('1.1.1', $plugin->getPluginVersion());
+        $this->assertSame('1.1.2', $plugin->getPluginVersion());
         $this->assertNotEmpty($plugin->getPluginDescription());
         $this->assertNotEmpty($plugin->getPluginAuthor());
         $this->assertNotEmpty($plugin->getPluginHomepage());
         $this->assertSame('>=1.2.47', $plugin->getCompatibleVersion());
+    }
+
+    public function testPluginJsonRequiresAiConnector114(): void
+    {
+        $json = json_decode(file_get_contents(__DIR__ . '/../plugin.json'), true);
+        $this->assertSame('1.1.2', $json['version']);
+        $this->assertSame(['AiConnector'], array_column($json['requires'], 'plugin'));
+        $this->assertSame('1.1.4', $json['requires'][0]['min_version']);
     }
 
     public function testPhpGatePassesOn84(): void
