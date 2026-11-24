@@ -4,11 +4,11 @@
 
 <div class="alert alert-info">
     <?= t('Provider setup (Anthropic, OpenAI, Grok, Gemini, Mistral, Ollama, …) now lives in the AI Connector plugin.') ?>
-    <?= $this->url->link(t('Open AI Connector settings'), 'SettingsController', 'show', ['plugin' => 'AiConnector']) ?>
+    <?= $this->url->link(t('Open AI Connector settings'), 'AiConnectorSettingsController', 'show', ['plugin' => 'AiConnector']) ?>
 </div>
 
 <form method="post"
-      action="<?= $this->url->href('SettingsController', 'save', ['plugin' => 'SubtaskGenerator']) ?>">
+      action="<?= $this->url->href('SubtaskGeneratorSettingsController', 'save', ['plugin' => 'SubtaskGenerator']) ?>">
     <?= $this->form->csrf() ?>
 
     <fieldset>

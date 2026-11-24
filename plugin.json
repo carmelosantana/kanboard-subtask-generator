@@ -8,6 +8,6 @@
     "kanboard_version": ">=1.2.47",
     "php_version": ">=8.4",
     "requires": [
-        { "plugin": "AiConnector", "min_version": "1.1.4", "reason": "provides the AI provider backend" }
+        { "plugin": "AiConnector", "min_version": "1.2.1", "reason": "provides the AI provider backend" }
     ]
 }

@@ -82,13 +82,13 @@ class Plugin extends Base
         // ── Admin settings routes ─────────────────────────────────────────────
         $this->route->addRoute(
             'subtask-generator/settings',
-            'SettingsController',
+            'SubtaskGeneratorSettingsController',
             'show',
             'SubtaskGenerator'
         );
         $this->route->addRoute(
             'subtask-generator/save',
-            'SettingsController',
+            'SubtaskGeneratorSettingsController',
             'save',
             'SubtaskGenerator'
         );

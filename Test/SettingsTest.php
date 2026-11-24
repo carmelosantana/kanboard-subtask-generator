@@ -3,7 +3,7 @@
 require_once 'tests/units/Base.php';
 
 use Kanboard\Core\Controller\AccessForbiddenException;
-use Kanboard\Plugin\SubtaskGenerator\Controller\SettingsController;
+use Kanboard\Plugin\SubtaskGenerator\Controller\SubtaskGeneratorSettingsController;
 use Kanboard\Plugin\SubtaskGenerator\Model\SubtaskGeneratorModel;
 use KanboardTests\units\Base;
 
@@ -129,7 +129,7 @@ class SettingsTest extends Base
     {
         $this->stubAdminWithForm(['sg_max_subtasks' => '12']);
 
-        $controller = new SettingsController($this->container);
+        $controller = new SubtaskGeneratorSettingsController($this->container);
 
         try {
             $controller->save();
@@ -149,7 +149,7 @@ class SettingsTest extends Base
     {
         $this->stubAdminWithForm(['sg_max_subtasks' => '999']);
 
-        $controller = new SettingsController($this->container);
+        $controller = new SubtaskGeneratorSettingsController($this->container);
 
         try {
             $controller->save();
@@ -177,7 +177,7 @@ class SettingsTest extends Base
     {
         $this->stubNonAdmin();
 
-        $controller = new SettingsController($this->container);
+        $controller = new SubtaskGeneratorSettingsController($this->container);
 
         $this->expectException(AccessForbiddenException::class);
         $controller->show();
@@ -195,7 +195,7 @@ class SettingsTest extends Base
     {
         $this->stubNonAdmin();
 
-        $controller = new SettingsController($this->container);
+        $controller = new SubtaskGeneratorSettingsController($this->container);
 
         $this->expectException(AccessForbiddenException::class);
         $controller->save();

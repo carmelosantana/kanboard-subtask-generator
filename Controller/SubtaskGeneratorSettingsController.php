@@ -14,7 +14,7 @@ use Kanboard\Core\Controller\AccessForbiddenException;
  * @package Kanboard\Plugin\SubtaskGenerator\Controller
  * @author  Carmelo Santana
  */
-class SettingsController extends BaseController
+class SubtaskGeneratorSettingsController extends BaseController
 {
     /**
      * Display the settings page (admin only).
@@ -51,6 +51,6 @@ class SettingsController extends BaseController
             ?? \Kanboard\Plugin\SubtaskGenerator\Model\SubtaskGeneratorModel::DEFAULT_MAX_SUBTASKS)));
         $this->configModel->save(['sg_max_subtasks' => (string) $maxSubtasks]);
         $this->flash->success(t('Settings saved successfully.'));
-        $this->response->redirect($this->helper->url->to('SettingsController', 'show', ['plugin' => 'SubtaskGenerator']));
+        $this->response->redirect($this->helper->url->to('SubtaskGeneratorSettingsController', 'show', ['plugin' => 'SubtaskGenerator']));
     }
 }

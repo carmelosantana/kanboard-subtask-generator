@@ -25,12 +25,12 @@ class PluginTest extends Base
         $this->assertSame('>=1.2.47', $plugin->getCompatibleVersion());
     }
 
-    public function testPluginJsonRequiresAiConnector114(): void
+    public function testPluginJsonRequiresAiConnector121(): void
     {
         $json = json_decode(file_get_contents(__DIR__ . '/../plugin.json'), true);
         $this->assertSame('1.1.2', $json['version']);
         $this->assertSame(['AiConnector'], array_column($json['requires'], 'plugin'));
-        $this->assertSame('1.1.4', $json['requires'][0]['min_version']);
+        $this->assertSame('1.2.1', $json['requires'][0]['min_version']);
     }
 
     public function testPhpGatePassesOn84(): void
@@ -136,8 +136,8 @@ class PluginTest extends Base
             'subtask-generator/show'     => ['GeneratorController', 'show'],
             'subtask-generator/generate' => ['GeneratorController', 'generate'],
             'subtask-generator/create'   => ['GeneratorController', 'create'],
-            'subtask-generator/settings' => ['SettingsController', 'show'],
-            'subtask-generator/save'     => ['SettingsController', 'save'],
+            'subtask-generator/settings' => ['SubtaskGeneratorSettingsController', 'show'],
+            'subtask-generator/save'     => ['SubtaskGeneratorSettingsController', 'save'],
         ];
 
         foreach ($expected as $path => list($controller, $action)) {
@@ -173,7 +173,7 @@ class PluginTest extends Base
         );
         $this->assertSame(
             'subtask-generator/settings',
-            $route->findUrl('SettingsController', 'show', array(), 'SubtaskGenerator')
+            $route->findUrl('SubtaskGeneratorSettingsController', 'show', array(), 'SubtaskGenerator')
         );
     }
 }

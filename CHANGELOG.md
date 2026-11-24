@@ -2,6 +2,15 @@
 
 All notable changes to SubtaskGenerator will be documented here.
 
+## [1.1.3] — unreleased
+
+### Changed
+
+- The settings controller is now `SubtaskGeneratorSettingsController`. Kanboard keys access rules by short
+  controller name, so another plugin's rule for a `SettingsController` would have governed this one too.
+- Requires AI Connector 1.2.1, which renamed its settings controller the same way; the "Open AI Connector
+  settings" link uses the new name.
+
 ## [1.1.2] — unreleased
 
 ### Changed
