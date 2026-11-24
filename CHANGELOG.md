@@ -2,7 +2,7 @@
 
 All notable changes to SubtaskGenerator will be documented here.
 
-## [1.1.3] — unreleased
+## [1.1.3] — 2026-11-24
 
 ### Changed
 

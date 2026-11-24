@@ -18,7 +18,7 @@ class PluginTest extends Base
         $plugin = new Plugin($this->container);
 
         $this->assertSame('SubtaskGenerator', $plugin->getPluginName());
-        $this->assertSame('1.1.2', $plugin->getPluginVersion());
+        $this->assertSame('1.1.3', $plugin->getPluginVersion());
         $this->assertNotEmpty($plugin->getPluginDescription());
         $this->assertNotEmpty($plugin->getPluginAuthor());
         $this->assertNotEmpty($plugin->getPluginHomepage());
@@ -28,7 +28,7 @@ class PluginTest extends Base
     public function testPluginJsonRequiresAiConnector121(): void
     {
         $json = json_decode(file_get_contents(__DIR__ . '/../plugin.json'), true);
-        $this->assertSame('1.1.2', $json['version']);
+        $this->assertSame('1.1.3', $json['version']);
         $this->assertSame(['AiConnector'], array_column($json['requires'], 'plugin'));
         $this->assertSame('1.2.1', $json['requires'][0]['min_version']);
     }
