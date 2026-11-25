@@ -2,7 +2,7 @@
 
 All notable changes to SubtaskGenerator will be documented here.
 
-## [1.1.3] — 2026-11-24
+## [1.1.3] — 2026-11-25
 
 ### Changed
 
@@ -10,6 +10,8 @@ All notable changes to SubtaskGenerator will be documented here.
   controller name, so another plugin's rule for a `SettingsController` would have governed this one too.
 - Requires AI Connector 1.2.1, which renamed its settings controller the same way; the "Open AI Connector
   settings" link uses the new name.
+- The renamed controller registers its own admin-only access rule, so its settings stay admins-only at the
+  access-map level, not only inside each action.
 
 ## [1.1.2] — unreleased
 

@@ -3,6 +3,7 @@
 namespace Kanboard\Plugin\SubtaskGenerator;
 
 use Kanboard\Core\Plugin\Base;
+use Kanboard\Core\Security\Role;
 use Kanboard\Plugin\SubtaskGenerator\Model\AiGate;
 
 class Plugin extends Base
@@ -92,6 +93,8 @@ class Plugin extends Base
             'save',
             'SubtaskGenerator'
         );
+        // Its own rule: the old shared name SettingsController took core's admin rule; this one would fall to the app-user default (#7337).
+        $this->applicationAccessMap->add('SubtaskGeneratorSettingsController', '*', Role::APP_ADMIN);
     }
 
     /**
