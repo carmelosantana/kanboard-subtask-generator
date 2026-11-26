@@ -71,10 +71,16 @@ SubtaskGenerator itself never reads or stores a key.
 
 If the provider is unreachable, times out, or returns malformed output, a friendly error message is shown in the modal — nothing is created, and the page does not 500.
 
+Each **Generate** counts against AI Connector's AI limits (a per-person hourly
+quota and a longest-request cap, set by an admin). Past either one, the modal
+says why and nothing is sent to the provider:
+
+![Subtask Generator refusing a request past the hourly AI limit](https://raw.githubusercontent.com/carmelosantana/kanboard-subtask-generator/main/docs/screenshots/ai-limit-refusal.webp)
+
 ## Graceful Degradation
 
 - **PHP < 8.4:** the plugin loads cleanly, AI features are disabled, the sidebar link is hidden.
-- **No ready AiConnector profile:** same — AI features are disabled, the sidebar link is hidden.
+- **No ready AiConnector profile, or AiConnector older than 1.3.0:** same — AI features are disabled, the sidebar link is hidden.
 - **Provider error (network, timeout, malformed output, empty result):** the modal shows a friendly error message; no subtasks are created; no page crash.
 - **Partial create failure:** if one subtask cannot be saved to the database, the remaining subtasks are still created. The flash notice reports both the created and failed counts.
 
