@@ -3,6 +3,7 @@
 namespace Kanboard\Plugin\SubtaskGenerator\Model;
 
 use Kanboard\Core\Base;
+use Kanboard\Plugin\AiConnector\Model\AiQuota;
 use Kanboard\Plugin\AiConnector\Model\ProviderRegistry;
 
 /**
@@ -50,12 +51,21 @@ class SubtaskGeneratorModel extends Base
         $this->injectedRegistry = $registry;
     }
 
+    /** Optional AiQuota override (has consume()) — injected in tests; null → built from container. */
+    private ?object $injectedQuota = null;
+
+    public function setQuota(object $quota): void
+    {
+        $this->injectedQuota = $quota;
+    }
+
     /**
      * Generate candidate subtask titles for the given prompt.
      *
      * @param  string      $prompt    Free-text prompt (task title + description).
      * @param  string|null $profileId AiConnector profile id (null → default).
      * @return string[]               Normalised, deduped, clamped titles.
+     * @throws SubtaskGeneratorRefused when AiConnector's quota or input cap refuses the call.
      * @throws \RuntimeException on provider error (caller must catch).
      */
     public function generate(string $prompt, ?string $profileId = null): array
@@ -66,6 +76,12 @@ class SubtaskGeneratorModel extends Base
             ['role' => 'system', 'content' => self::SYSTEM_PROMPT],
             ['role' => 'user',   'content' => $prompt],
         ];
+
+        $quota = $this->injectedQuota ?? new AiQuota($this->container);
+        $refusal = $quota->consume((int) $this->userSession->getId(), 'subtaskgenerator.generate', array_column($messages, 'content'));
+        if ($refusal !== null) {
+            throw new SubtaskGeneratorRefused($refusal);
+        }
 
         $decoded = $registry->structured($messages, json_encode(self::SCHEMA), $profileId);
 

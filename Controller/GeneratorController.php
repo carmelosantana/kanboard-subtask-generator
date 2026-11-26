@@ -6,6 +6,7 @@ use Kanboard\Controller\BaseController;
 use Kanboard\Core\Controller\AccessForbiddenException;
 use Kanboard\Core\Controller\PageNotFoundException;
 use Kanboard\Plugin\SubtaskGenerator\Model\AiGate;
+use Kanboard\Plugin\SubtaskGenerator\Model\SubtaskGeneratorRefused;
 use Kanboard\Plugin\SubtaskGenerator\Model\SubtaskGeneratorModel;
 
 /**
@@ -207,6 +208,8 @@ class GeneratorController extends BaseController
             $subtasks = $model->generate($prompt, $profileId !== '' ? $profileId : null);
 
             $this->response->json(['subtasks' => $subtasks]);
+        } catch (SubtaskGeneratorRefused $e) {
+            $this->response->json(['error' => $e->getMessage()], 429);
         } catch (\Throwable $e) {
             // Log the exception class and code only — never the message, which
             // could contain a request URL, provider error body, or other details

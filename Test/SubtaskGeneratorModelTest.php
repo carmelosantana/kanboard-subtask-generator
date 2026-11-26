@@ -6,6 +6,7 @@ use Kanboard\Plugin\AiConnector\Model\ProviderRegistry;
 use Kanboard\Core\Controller\AccessForbiddenException;
 use Kanboard\Plugin\SubtaskGenerator\Controller\GeneratorController;
 use Kanboard\Plugin\SubtaskGenerator\Model\SubtaskGeneratorModel;
+use Kanboard\Plugin\SubtaskGenerator\Model\SubtaskGeneratorRefused;
 use KanboardTests\units\Base;
 
 /**
@@ -43,7 +44,22 @@ class SubtaskGeneratorModelTest extends Base
     {
         $model = new SubtaskGeneratorModel($this->container);
         $model->setRegistry($this->fakeRegistry($return, $throw));
+        $model->setQuota($this->fakeQuota());
         return $model;
+    }
+
+    /** An AiConnector AiQuota stand-in: records each check, refuses when given a refusal. */
+    private function fakeQuota(?string $refusal = null): object
+    {
+        return new class($refusal) {
+            public array $calls = [];
+            public function __construct(private ?string $refusal) {}
+            public function consume(int $userId, string $feature, string|array $input): ?string
+            {
+                $this->calls[] = [$userId, $feature, $input];
+                return $this->refusal;
+            }
+        };
     }
 
     /**
@@ -402,5 +418,40 @@ class SubtaskGeneratorModelTest extends Base
             'Controller generate() must have a try block wrapping the model call');
         $this->assertStringContainsString('$model->generate(', $src,
             'Controller must call $model->generate()');
+    }
+
+    public function testTheQuotaIsCheckedWithTheTextSent(): void
+    {
+        $this->container['userSession'] = new class { public function getId() { return 7; } };
+        $model = $this->makeModel(['subtasks' => [['title' => 'One']]]);
+        $quota = $this->fakeQuota();
+        $model->setQuota($quota);
+        $model->generate('Ship the release');
+        $this->assertCount(1, $quota->calls);
+        [$userId, $feature, $input] = $quota->calls[0];
+        $this->assertSame(7, $userId);
+        $this->assertSame('subtaskgenerator.generate', $feature);
+        $this->assertContains('Ship the release', $input);
+    }
+
+    public function testARefusalThrowsBeforeTheProvider(): void
+    {
+        $model = $this->makeModel(null, new \RuntimeException('provider must not be called'));
+        $model->setQuota($this->fakeQuota('You have reached the AI limit.'));
+        $this->expectException(SubtaskGeneratorRefused::class);
+        $this->expectExceptionMessage('You have reached the AI limit.');
+        $model->generate('A task');
+    }
+
+    public function testTheControllerShowsTheRefusalWith429(): void
+    {
+        $src = file_get_contents(dirname(__DIR__) . '/Controller/GeneratorController.php');
+        $this->assertMatchesRegularExpression('/catch \(SubtaskGeneratorRefused \$e\)\s*\{\s*\$this->response->json\(\[\'error\' => \$e->getMessage\(\)\], 429\);/', $src);
+        $this->assertLessThan(strpos($src, 'catch (\\Throwable'), strpos($src, 'catch (SubtaskGeneratorRefused'), 'the refusal is caught before the generic provider error');
+    }
+
+    public function testTheGateNeedsAiConnectorsQuotaService(): void
+    {
+        $this->assertStringContainsString('AiQuota::class', file_get_contents(dirname(__DIR__) . '/Model/AiGate.php'));
     }
 }
