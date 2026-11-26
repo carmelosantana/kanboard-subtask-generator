@@ -2,6 +2,13 @@
 
 All notable changes to SubtaskGenerator will be documented here.
 
+## [1.1.4] — 2026-11-25
+
+### Security
+
+- Generating subtasks now counts against AI Connector's AI limits: each AI request first passes its per-person hourly quota and longest-request cap, and a request past either is refused with the reason, before it reaches the provider.
+- Requires AI Connector 1.3.0, which provides those limits.
+
 ## [1.1.3] — 2026-11-25
 
 ### Changed

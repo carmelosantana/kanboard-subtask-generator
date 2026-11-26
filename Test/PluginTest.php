@@ -18,19 +18,19 @@ class PluginTest extends Base
         $plugin = new Plugin($this->container);
 
         $this->assertSame('SubtaskGenerator', $plugin->getPluginName());
-        $this->assertSame('1.1.3', $plugin->getPluginVersion());
+        $this->assertSame('1.1.4', $plugin->getPluginVersion());
         $this->assertNotEmpty($plugin->getPluginDescription());
         $this->assertNotEmpty($plugin->getPluginAuthor());
         $this->assertNotEmpty($plugin->getPluginHomepage());
         $this->assertSame('>=1.2.47', $plugin->getCompatibleVersion());
     }
 
-    public function testPluginJsonRequiresAiConnector121(): void
+    public function testPluginJsonRequiresAiConnector130(): void
     {
         $json = json_decode(file_get_contents(__DIR__ . '/../plugin.json'), true);
-        $this->assertSame('1.1.3', $json['version']);
+        $this->assertSame('1.1.4', $json['version']);
         $this->assertSame(['AiConnector'], array_column($json['requires'], 'plugin'));
-        $this->assertSame('1.2.1', $json['requires'][0]['min_version']);
+        $this->assertSame('1.3.0', $json['requires'][0]['min_version']); // AiQuota, the shared AI limits
     }
 
     public function testPhpGatePassesOn84(): void
