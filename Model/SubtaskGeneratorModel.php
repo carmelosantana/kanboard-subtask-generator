@@ -22,7 +22,7 @@ class SubtaskGeneratorModel extends Base
     public const DEFAULT_MAX_SUBTASKS = 8;
 
     /** JSON schema passed to structured(). Name matches the tool name. */
-    private const SCHEMA = [
+    public const SCHEMA = [
         'name'   => 'subtasks',
         'schema' => [
             'type'       => 'object',
@@ -78,7 +78,7 @@ class SubtaskGeneratorModel extends Base
         ];
 
         $quota = $this->injectedQuota ?? new AiQuota($this->container);
-        $refusal = $quota->consume((int) $this->userSession->getId(), 'subtaskgenerator.generate', array_column($messages, 'content'));
+        $refusal = $quota->consume((int) $this->userSession->getId(), 'subtaskgenerator.generate', [...array_column($messages, 'content'), json_encode(self::SCHEMA)]);
         if ($refusal !== null) {
             throw new SubtaskGeneratorRefused($refusal);
         }

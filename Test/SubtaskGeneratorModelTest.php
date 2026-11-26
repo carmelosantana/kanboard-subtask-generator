@@ -454,4 +454,14 @@ class SubtaskGeneratorModelTest extends Base
     {
         $this->assertStringContainsString('AiQuota::class', file_get_contents(dirname(__DIR__) . '/Model/AiGate.php'));
     }
+
+    public function testTheSchemaIsCountedWithTheMessages(): void
+    {
+        $model = $this->makeModel(['subtasks' => []]);
+        $quota = $this->fakeQuota();
+        $model->setQuota($quota);
+        $model->generate('Ship the release');
+        $this->assertContains(json_encode(SubtaskGeneratorModel::SCHEMA), $quota->calls[0][2]);
+    }
+
 }
