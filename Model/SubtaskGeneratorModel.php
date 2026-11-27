@@ -43,6 +43,9 @@ class SubtaskGeneratorModel extends Base
     private const SYSTEM_PROMPT = 'Break the task into concrete, actionable subtasks.';
 
     /** Optional registry override — injected in tests; null → built from container. */
+    /** The AiConnector routing feature id (also the AiQuota feature). */
+    public const FEATURE = 'subtaskgenerator.generate';
+
     private ?ProviderRegistry $injectedRegistry = null;
 
     /** Inject a registry (with a fake provider) so unit tests make no network call. */
@@ -78,7 +81,7 @@ class SubtaskGeneratorModel extends Base
         ];
 
         $quota = $this->injectedQuota ?? new AiQuota($this->container);
-        $refusal = $quota->consume((int) $this->userSession->getId(), 'subtaskgenerator.generate', [...array_column($messages, 'content'), json_encode(self::SCHEMA)]);
+        $refusal = $quota->consume((int) $this->userSession->getId(), self::FEATURE, [...array_column($messages, 'content'), json_encode(self::SCHEMA)]);
         if ($refusal !== null) {
             throw new SubtaskGeneratorRefused($refusal);
         }

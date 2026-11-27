@@ -5,6 +5,7 @@ namespace Kanboard\Plugin\SubtaskGenerator;
 use Kanboard\Core\Plugin\Base;
 use Kanboard\Core\Security\Role;
 use Kanboard\Plugin\SubtaskGenerator\Model\AiGate;
+use Kanboard\Plugin\SubtaskGenerator\Model\SubtaskGeneratorModel;
 
 class Plugin extends Base
 {
@@ -29,6 +30,11 @@ class Plugin extends Base
             );
             // Settings page still loads (shows a disabled notice) — fall through to route wiring.
         }
+
+        // ── Model routing: the feature AiConnector lets admins route ─────────
+        $this->hook->on('aiconnector:features', fn () => [
+            ['id' => SubtaskGeneratorModel::FEATURE, 'label' => t('Generate subtasks'), 'plugin' => 'SubtaskGenerator'],
+        ]);
 
         // ── External JS (CSP-safe, event-delegated modal interaction) ────────
         $this->hook->on('template:layout:js', [
@@ -137,7 +143,7 @@ class Plugin extends Base
 
     public function getPluginVersion(): string
     {
-        return '1.1.4';
+        return '1.2.0';
     }
 
     public function getPluginHomepage(): string

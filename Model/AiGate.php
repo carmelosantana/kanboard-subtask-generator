@@ -8,7 +8,8 @@ use Kanboard\Plugin\AiConnector\Model\ProviderRegistry;
  * AiGate — single source of truth for "is AI subtask generation available?".
  *
  * Gate = PHP >= 8.4 AND AiConnector present (with its AiQuota spend guard,
- * 1.3.0+) AND ProviderRegistry::isReady(). An older AiConnector keeps AI off.
+ * 1.3.0+) AND ProviderRegistry::resolve() (routing, 1.4.0+) AND
+ * ProviderRegistry::isReady(). An older AiConnector keeps AI off.
  * Consulted identically by Plugin::initialize() (sidebar link) and
  * GeneratorController::isAiEnabled() (route guards) so they never diverge.
  *
@@ -34,6 +35,11 @@ class AiGate
             ?? (class_exists(\Kanboard\Plugin\AiConnector\Model\ProviderRegistry::class)
                 && class_exists(\Kanboard\Plugin\AiConnector\Model\AiQuota::class));
         if (! $present) {
+            return false;
+        }
+
+        // Model routing (AiConnector 1.4.0+): without resolve() AI stays off.
+        if (! method_exists(\Kanboard\Plugin\AiConnector\Model\ProviderRegistry::class, 'resolve')) {
             return false;
         }
 

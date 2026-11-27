@@ -51,12 +51,10 @@ class GeneratorController extends BaseController
         // Build the prefilled prompt: title + (optional) description.
         $sg_prompt = $this->buildPrompt($task);
 
-        $registry = new \Kanboard\Plugin\AiConnector\Model\ProviderRegistry($this->container);
         $this->response->html($this->template->render('SubtaskGenerator:generator/modal', [
-            'task'               => $task,
-            'sg_prompt'          => $sg_prompt,
-            'profiles'           => $registry->listProfiles(),
-            'default_profile_id' => $registry->getDefaultProfileId(),
+            'task'       => $task,
+            'sg_prompt'  => $sg_prompt,
+            'ai_options' => $this->getRegistry()->pickerOptions(SubtaskGeneratorModel::FEATURE, (int) $task['project_id']),
         ]));
     }
 
@@ -193,19 +191,22 @@ class GeneratorController extends BaseController
 
         // ── 6. Call the model ─────────────────────────────────────────────────
         try {
-            // Resolve the chosen profile (validate against known ids).
-            $profileId = trim($this->request->getStringParam('sg_profile', ''));
-            if ($profileId !== '') {
-                $registry = new \Kanboard\Plugin\AiConnector\Model\ProviderRegistry($this->container);
-                $known = array_column($registry->listProfiles(), 'id');
-                if (! in_array($profileId, $known, true)) {
-                    $profileId = '';
-                }
+            // The profile always comes from resolve(): the posted pick is only a request
+            // that AiConnector honours when this feature and project offer a picker.
+            $pick      = $this->request->getRawValue('ai_profile');
+            $profileId = $this->getRegistry()->resolve(
+                SubtaskGeneratorModel::FEATURE,
+                (int) $task['project_id'],
+                is_string($pick) ? $pick : null
+            );
+            if ($profileId === '') {
+                $this->response->json(['error' => t('AI is not available. Ask an administrator to check the AI Connector settings.')]);
+                return;
             }
 
             /** @var SubtaskGeneratorModel $model */
             $model    = $this->getGeneratorModel();
-            $subtasks = $model->generate($prompt, $profileId !== '' ? $profileId : null);
+            $subtasks = $model->generate($prompt, $profileId);
 
             $this->response->json(['subtasks' => $subtasks]);
         } catch (SubtaskGeneratorRefused $e) {
@@ -225,6 +226,11 @@ class GeneratorController extends BaseController
     }
 
     // ── Protected factories (overridable in tests) ────────────────────────────
+
+    protected function getRegistry(): \Kanboard\Plugin\AiConnector\Model\ProviderRegistry
+    {
+        return new \Kanboard\Plugin\AiConnector\Model\ProviderRegistry($this->container);
+    }
 
     /**
      * Return the SubtaskGeneratorModel instance.

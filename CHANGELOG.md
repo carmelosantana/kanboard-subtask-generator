@@ -2,6 +2,13 @@
 
 All notable changes to SubtaskGenerator will be documented here.
 
+## [1.2.0] - Unreleased
+
+### Changed
+
+- Generating subtasks uses AI Connector's model routing: the model comes from the admin's routing for **Generate subtasks**, the project's setting, or the picker when the project lets members switch. The modal shows AI Connector's shared **AI model** picker instead of its own provider dropdown.
+- Requires AI Connector 1.4.0 (was 1.3.0).
+
 ## [1.1.4] — 2026-11-25
 
 ### Security
