@@ -4,6 +4,10 @@ All notable changes to SubtaskGenerator will be documented here.
 
 ## [1.2.0] - Unreleased
 
+### Fixed
+
+- The prompt edited in the Generate-subtasks modal is now used (it was ignored, and the task-derived default sent instead).
+
 ### Changed
 
 - Generating subtasks uses AI Connector's model routing: the model comes from the admin's routing for **Generate subtasks**, the project's setting, or the picker when the project lets members switch. The modal shows AI Connector's shared **AI model** picker instead of its own provider dropdown.

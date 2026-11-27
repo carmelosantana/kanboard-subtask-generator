@@ -28,7 +28,7 @@ class RoutingTest extends Base
         $this->container['userSession']->method('getId')->willReturn(1);
     }
 
-    private function stubRequest(int $taskId, string $pick): void
+    private function stubRequest(int $taskId, string $pick, ?string $prompt = null): void
     {
         $mock = $this->getMockBuilder(\Kanboard\Core\Http\Request::class)
             ->setConstructorArgs([$this->container])
@@ -36,7 +36,7 @@ class RoutingTest extends Base
             ->getMock();
         $mock->method('getIntegerParam')->willReturnCallback(fn (string $p) => $p === 'task_id' ? $taskId : 0);
         $mock->method('getStringParam')->willReturn('');
-        $mock->method('getRawValue')->willReturnCallback(fn (string $n) => $n === 'ai_profile' ? $pick : null);
+        $mock->method('getRawValue')->willReturnCallback(fn (string $n) => $n === 'ai_profile' ? $pick : ($n === 'sg_prompt' ? $prompt : null));
         $this->container['request'] = $mock;
         $this->container['response'] = $this->getMockBuilder(\Kanboard\Core\Http\Response::class)
             ->disableOriginalConstructor()->onlyMethods(['json', 'html', 'redirect'])->getMock();
@@ -75,8 +75,10 @@ class RoutingTest extends Base
     {
         $model = new class($this->container) extends SubtaskGeneratorModel {
             public array $generateCalls = [];
+            public array $prompts = [];
             public function generate(string $prompt, ?string $profileId = null): array
             {
+                $this->prompts[] = $prompt;
                 $this->generateCalls[] = $profileId;
                 return ['A'];
             }
@@ -145,6 +147,18 @@ class RoutingTest extends Base
 
         $this->assertNotContains('not-a-profile', $model->generateCalls);
         $this->assertSame(['the-default'], $model->generateCalls);
+    }
+
+    public function testAPostedPromptReachesTheModelTrimmed(): void
+    {
+        $this->stubSession();
+        [, $taskId] = $this->seedTask();
+        $this->stubRequest($taskId, '', "  My edited prompt \n");
+        $ctrl = $this->controller($this->stubRegistry('p'), $model);
+
+        $ctrl->generate();
+
+        $this->assertSame(['My edited prompt'], $model->prompts);
     }
 
     public function testNothingReadyMakesNoCall(): void

@@ -177,7 +177,8 @@ class GeneratorController extends BaseController
         $this->checkCSRFForm();
 
         // ── 5. Read prompt ────────────────────────────────────────────────────
-        $prompt = trim($this->request->getStringParam('sg_prompt', ''));
+        $posted = $this->request->getRawValue('sg_prompt');
+        $prompt = is_string($posted) ? trim($posted) : '';
 
         if ($prompt === '') {
             // Build from the task if the user cleared the textarea.
